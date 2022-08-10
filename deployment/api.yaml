@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-api
+spec:
+  selector:
+    matchLabels:
+      app: http-api
+
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: http-api
+    spec:
+      containers:
+      - name: http-api
+        image: rexhaif/http-api:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+        env:
+        - name: API_REDIS__HOST
+          value: "redis.default.svc.cluster.local"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-api-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: http-api
+  ports:
+  - port: 8080
+    targetPort: 8080
+
